@@ -54,13 +54,19 @@ public class HibernateExercise {
 
         Session session = factory.openSession();
         Transaction tx = session.beginTransaction();
-        Student student = new Student(nombre, lastname, age, email, phone);
+        Student student;
+
+        try {
+        student = new Student(nombre, lastname, age, email, phone);
 
         session.save(student);
         tx.commit();
         session.close();
 
         System.out.println("Student "+ nombre + " " + lastname + " ("+ student.getId() + ") successfully inserted into database.");
+        } catch (Exception e) {
+            System.out.println("ERROR: Error inserting student");
+        }
     }
 
     // Update a student
@@ -68,20 +74,25 @@ public class HibernateExercise {
 
         Session session = factory.openSession();
         Transaction tx = session.beginTransaction();
-        Student student = session.get(Student.class, id);
+        Student student;
 
-        student.setName(nombre);
-        student.setLastname(lastname);
-        student.setAge(age);
+        try {
+            student = session.get(Student.class, id);
 
-        student.setEmail(email);
-        student.setPhone(phone);
+            student.setName(nombre);
+            student.setLastname(lastname);
+            student.setAge(age);
+            student.setEmail(email);
+            student.setPhone(phone);
 
-        session.update(student);
-        tx.commit();
-        session.close();
+            session.update(student);
+            tx.commit();
+            session.close();
 
-        System.out.println("Student '"+ id + "' successfully updated.");
+            System.out.println("Student '"+ id + "' successfully updated.");
+        } catch (Exception e) {
+            System.out.println("ERROR: Can' find student with id: " + id);
+        }
     }
 
     // Delete a student
@@ -89,20 +100,30 @@ public class HibernateExercise {
 
         Session session = factory.openSession();
         Transaction tx = session.beginTransaction();
-        Student student = session.get(Student.class, id);
 
-        session.delete(student);
-        tx.commit();
-        session.close();
+        try {
+            Student student = session.get(Student.class, id);
+            session.delete(student);
 
-        System.out.println("Student '"+ id + "' successfully deleted.");
+            tx.commit();
+            session.close();
+            System.out.println("Student '"+ id + "' successfully deleted.");
+
+        }   catch (Exception e) {
+            System.out.println("ERROR: Can't find student with id: " + id);
+        }
     }
 
     // Get one student by id
     private static Student getStudent(int id) {
         Session session = factory.openSession();
-        Student student = session.get(Student.class, id);
-        session.close();
+        Student student = new Student();
+
+        try {
+            student = session.get(Student.class, id);
+            session.close();
+        }   catch (Exception e) {
+            System.out.println("ERROR: Can't find student with id: " + id);}
 
         return student;
     }
@@ -111,8 +132,15 @@ public class HibernateExercise {
     private static List<Student> listStudents() {
 
         Session session = factory.openSession();
-        List<Student> studentList = session.createQuery("FROM Student", Student.class).list();
-        session.close();
+        List<Student> studentList = new ArrayList<>();
+
+        try {
+            studentList = session.createQuery("FROM Student", Student.class).list();
+            session.close();
+
+        }   catch (Exception e) {
+            System.out.println("ERROR: Error listing students");
+        }
 
         return studentList;
     }
